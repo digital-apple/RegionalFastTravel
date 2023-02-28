@@ -12,11 +12,28 @@ namespace Hooks
 			const auto player = RE::PlayerCharacter::GetSingleton();
 			const auto currentLocation = player->GetCurrentLocation();
 			const auto destinyLocation = reference->GetCurrentLocation();
+			
+			if (reference->GetFormID() == 0x04016FE7) { // Eastmarch to Solstheim.
+				if (currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x00018A57) || currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x0001676A) || settings->enableTravelHold) {
+					return true;
+				}
+				RE::DebugNotification(settings->notificationHold.c_str(), settings->notificationSound.c_str());
+				a_menu->PlaceMarker();
+				return false;
+			}
+
+			if (reference->GetFormID() == 0x04016FE6) { // Solstheim to Eastmarch.
+				if (currentLocation == RE::TESForm::LookupByID<RE::BGSLocation>(0x04016E2A) || currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x04016E2A)) {
+					return true;
+				}
+				RE::DebugNotification(settings->notificationHold.c_str(), settings->notificationSound.c_str());
+				a_menu->PlaceMarker();
+				return false;
+			}
 
 			if (currentLocation->parentLoc == destinyLocation->parentLoc || currentLocation->parentLoc == destinyLocation->parentLoc->parentLoc || destinyLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x000130FF) || settings->enableTravelHold) {
 				if (destinyLocation->HasKeywordString("LocTypeHabitation") || destinyLocation->HasKeywordString("LocTypeDwelling") || destinyLocation->HasKeywordString("LocTypeMilitaryCamp") || settings->IsUniqueLocation(destinyLocation->GetFormID()) || settings->enableTravelHabitation) {
 					if (!settings->enableTravelFaction && destinyLocation->HasKeywordString("LocTypeMilitaryCamp") || !settings->enableTravelFaction && settings->IsUniqueLocation(destinyLocation->GetFormID())) {
-
 						if (settings->IsSameLocation(destinyLocation, 0x00076F3A) && settings->GetQuestCompleted(0x0001F251)) { return true; } // College of Winterhold | "First Lessons"
 						if (settings->IsSameLocation(destinyLocation, 0x0003444E) && settings->GetQuestCompleted(0x0001EA51)) { return true; } // Dark Brotherhood Sanctuary | "With Friends Like These..."
 						if (settings->IsSameLocation(destinyLocation, 0x00019429) && settings->GetQuestCompleted(0x0001EA59)) { return true; } // Dawnstar Sanctuary | "Hail Sithis!"
