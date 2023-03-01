@@ -5,67 +5,51 @@ namespace Hooks
 {
 	bool func(RE::MapMenu* a_menu)
 	{
-		const auto settings = Settings::GetSingleton();
-		const auto reference = a_menu->mapMarker.get().get();
+		const auto marker = a_menu->mapMarker.get().get();
 
-		if (reference) {
-			const auto player = RE::PlayerCharacter::GetSingleton();
-			const auto currentLocation = player->GetCurrentLocation();
-			const auto destinyLocation = reference->GetCurrentLocation();
-			
-			if (reference->GetFormID() == 0x04016FE7) { // Eastmarch to Solstheim.
-				if (currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x00018A57) || currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x0001676A) || settings->enableTravelHold) {
-					return true;
-				}
-				RE::DebugNotification(settings->notificationHold.c_str(), settings->notificationSound.c_str());
-				a_menu->PlaceMarker();
-				return false;
-			}
+		if (marker) {
+			const auto settings = Settings::GetSingleton();
+			const auto currentLoc = RE::PlayerCharacter::GetSingleton()->GetCurrentLocation();
+			const auto destinyLoc = marker->GetCurrentLocation();
 
-			if (reference->GetFormID() == 0x04016FE6) { // Solstheim to Eastmarch.
-				if (currentLocation == RE::TESForm::LookupByID<RE::BGSLocation>(0x04016E2A) || currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x04016E2A)) {
-					return true;
-				}
-				RE::DebugNotification(settings->notificationHold.c_str(), settings->notificationSound.c_str());
-				a_menu->PlaceMarker();
-				return false;
-			}
+			logger::info("* Hooks :: Latest marker ID: {:#x}", marker->GetFormID());
 
-			if (currentLocation->parentLoc == destinyLocation->parentLoc || currentLocation->parentLoc == destinyLocation->parentLoc->parentLoc || destinyLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x000130FF) || settings->enableTravelHold) {
-				if (destinyLocation->HasKeywordString("LocTypeHabitation") || destinyLocation->HasKeywordString("LocTypeDwelling") || destinyLocation->HasKeywordString("LocTypeMilitaryCamp") || settings->IsUniqueLocation(destinyLocation->GetFormID()) || settings->enableTravelHabitation) {
-					if (!settings->enableTravelFaction && destinyLocation->HasKeywordString("LocTypeMilitaryCamp") || !settings->enableTravelFaction && settings->IsUniqueLocation(destinyLocation->GetFormID())) {
-						if (settings->IsSameLocation(destinyLocation, 0x00076F3A) && settings->GetQuestCompleted(0x0001F251)) { return true; } // College of Winterhold | "First Lessons"
-						if (settings->IsSameLocation(destinyLocation, 0x0003444E) && settings->GetQuestCompleted(0x0001EA51)) { return true; } // Dark Brotherhood Sanctuary | "With Friends Like These..."
-						if (settings->IsSameLocation(destinyLocation, 0x00019429) && settings->GetQuestCompleted(0x0001EA59)) { return true; } // Dawnstar Sanctuary | "Hail Sithis!"
-						if (settings->IsSameLocation(destinyLocation, 0x00018E34) && settings->GetQuestCompleted(0x000242BA)) { return true; } // High Hrothgar | "The Way Of The Voice"
-						if (settings->IsSameLocation(destinyLocation, 0x00018E42) && settings->GetQuestCompleted(0x00036192)) { return true; } // Sky Haven Temple | "Alduin's Wall"
-
-						if (settings->IsSameLocation(destinyLocation, 0x0001916F) && player->IsInFaction(RE::TESForm::LookupByID<RE::TESFaction>(0x000E3609))) { return true; } // Druadach Redoubt | "No One Escapes Cidhna Mine"
-
-						if (destinyLocation->HasKeywordString("LocTypeOrcStronghold") && player->IsInFaction(RE::TESForm::LookupByID<RE::TESFaction>(0x00024029))) { return true; } // Orc Stronghold | "The Forgemaster's Fingers" OR being an Orsimer.
-						if (destinyLocation->HasKeywordString("CWCampImperial") && settings->GetQuestCompleted(0x000D517A)) { return true; }	// Imperial Military Camp | "Joining the Legion"
-						if (destinyLocation->HasKeywordString("CWCampSons") && settings->GetQuestCompleted(0x000E2D29)) { return true; }		// Sons of Skyrim Military Camp | "Joining the Stormcloaks"
-
-						if (currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x00018A58) || currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x0001676C)) { // RiftenLocation OR RiftHoldLocation.
-							if (settings->IsSameLocation(destinyLocation, 0x02004C1F) && settings->GetQuestCompleted(0x02004E24)) { return true; } // Dayspring Canyon | "A New Order"
+			if (const auto customMarker = settings->IsCustomMarker(marker->GetFormID()); customMarker.markerID != 0x0) {
+				if (currentLoc->parentLoc->GetFormID() == customMarker.holdID || currentLoc->parentLoc->parentLoc->GetFormID() == customMarker.holdID || settings->enableTravelHold) {
+					if (customMarker.factionID != 0x0 || settings->enableTravelFaction) {
+						if (RE::PlayerCharacter::GetSingleton()->IsInFaction(RE::TESForm::LookupByID<RE::TESFaction>(customMarker.factionID))) {
+							return true;
 						}
+						settings->SendData(a_menu, "faction", true);
+						return false;
+					}
 
-						if (currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x00018A5A) || currentLocation->parentLoc == RE::TESForm::LookupByID<RE::BGSLocation>(0x00016770)) { // SolitudeLocation OR HaafingarHoldLocation.
-							if (settings->IsSameLocation(destinyLocation, 0x02004C20) && settings->GetQuestCompleted(0x0200594C)) { return true; } // Castle Volkihar | "The Bloodstone Chalice"
+					if (customMarker.questID != 0x0 || settings->enableTravelFaction) {
+						if (settings->GetQuestCompleted(customMarker.questID)) {
+							return true;
 						}
-
-						RE::DebugNotification(settings->notificationFaction.c_str(), settings->notificationSound.c_str());
-						a_menu->PlaceMarker();
+						settings->SendData(a_menu, "faction", true);
 						return false;
 					}
 					return true;
 				}
-				RE::DebugNotification(settings->notificationHabitation.c_str(), settings->notificationSound.c_str());
-				a_menu->PlaceMarker();
+				settings->SendData(a_menu, "hold", true);
 				return false;
 			}
-			RE::DebugNotification(settings->notificationHold.c_str(), settings->notificationSound.c_str());
-			a_menu->PlaceMarker();
+
+			if (!destinyLoc || !destinyLoc->parentLoc) {
+				settings->SendData(a_menu, "data", false);
+				return true;
+			}
+
+			if (currentLoc->parentLoc == destinyLoc->parentLoc || currentLoc->parentLoc == destinyLoc->parentLoc->parentLoc || settings->enableTravelHold) {
+				if (settings->IsLocationAllowed(destinyLoc) || settings->enableTravelHabitation) {
+					return true;
+				}
+				settings->SendData(a_menu, "habitation", true);
+				return false;
+			}
+			settings->SendData(a_menu, "hold", true);
 			return false;
 		}
 		return false;

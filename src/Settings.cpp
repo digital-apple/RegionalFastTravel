@@ -8,45 +8,89 @@ Settings* Settings::GetSingleton()
 
 Settings::Settings()
 {
-	SetupUniqueLocations();
-
 	CSimpleIniA ini;
 	ini.SetUnicode();
 
 	ini.LoadFile(path);
 
+	ini::get_value(ini, enableTravelHold, "Settings", "Marker Placement", "; Places the player's custom marker to the marker you weren't able to travel to.");
 	ini::get_value(ini, enableTravelHold, "Settings", "Hold Fast Travel", "; Allows fast travel between different holds.");
 	ini::get_value(ini, enableTravelFaction, "Settings", "Faction Fast Travel", "; Allows fast travel to locations owned by factions while not being a member of them.");
-	ini::get_value(ini, enableTravelHabitation, "Settings", "Habitation Fast Travel", "; Allows fast travel to locations that doesn't have the 'LocTypeHabitation' or 'LocTypeDwelling' keywords.");
+	ini::get_value(ini, enableTravelHabitation, "Settings", "Habitation Fast Travel", "; Allows fast travel to locations that doesn't have the permitted keywords.");
+	ini::get_value(ini, disableNotificationQueue, "Settings", "Notification Queue", "; This setting will allow notifications to be displayed even if they are already in queue.");
 
 	ini::get_value(ini, notificationHold, "Notifications", "Hold Notification", "; The notification that will be displayed when you can't fast travel to a location due to it being in a different hold.");
 	ini::get_value(ini, notificationFaction, "Notifications", "Faction Notification", "; The notification that will be displayed when you can't fast travel to a location due to you not being a location's faction member.");
 	ini::get_value(ini, notificationHabitation, "Notifications", "Habitation Notification", "; The notification that will be displayed when you can't fast travel due to the location not being a habitation.");
+	ini::get_value(ini, notificationInsufficientData, "Notifications", "Insufficient Data Notification", "; The notification that will be displayed when the map marker doesn't have any data assigned to it. This has be done manually for non-vanilla map markers.");
 
 	ini::get_value(ini, notificationSound, "Sound", "Notification Sound", "; The editor ID of the sound that will be played if you can't fast travel to a location.");
 
 	(void)ini.SaveFile(path);
 }
 
-void Settings::SetupUniqueLocations()
+void Settings::SetupCustomMarkers()
 {
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x00076F3A));
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x0003444E));
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x00019429));
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x00018E34));
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x00018E42));
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x0001916F));
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x02004C1F)); 
-	uniqueLocations.push_back(static_cast<RE::FormID>(0x02004C20));
+	CSimpleIniA ini;
+	ini.SetUnicode();
+	ini.LoadFile(path);
 
-	logger::info("* Settings :: Done setting up unique locations.");
+	if (const auto section = ini.GetSection("Custom Markers"); section && !section->empty()) {
+		for (const auto& entry : *section | std::views::values) {
+			std::vector<std::string> parts;
+
+			for (auto sub : std::string((entry)) | std::views::split('|')) {
+				parts.push_back(std::string(sub.begin(), sub.end()));
+			}
+
+			Settings::Marker customMarker{ stoul(parts[0], 0, 16), stoul(parts[1], 0, 16), stoul(parts[2], 0, 16), stoul(parts[3], 0, 16) };
+
+			customMarkers.emplace_back(customMarker);
+		}
+		logger::info("* Settings :: Done setting up {} custom markers.", customMarkers.size());
+	}
 }
 
-bool Settings::IsUniqueLocation(RE::FormID a_location)
+void Settings::SetupCustomKeywords()
+{
+	CSimpleIniA ini;
+	ini.SetUnicode();
+	ini.LoadFile(path);
+
+	if (const auto section = ini.GetSection("Custom Keywords"); section && !section->empty()) {
+		for (const auto& entry : *section | std::views::values) {
+			std::vector<std::string> parts;
+
+			for (auto sub : std::string((entry)) | std::views::split('|')) {
+				parts.push_back(std::string(sub.begin(), sub.end()));
+			}
+
+			for (auto& part : parts) {
+				if (!part.empty()) {
+					customKeywords.emplace_back(part);
+				}
+			}
+		}
+		logger::info("* Settings :: Done setting up {} custom keywords.", customKeywords.size());
+	}
+}
+
+Settings::Marker Settings::IsCustomMarker(RE::FormID a_id) const
+{
+	for (auto& customMarker : customMarkers) {
+		if (customMarker.markerID == a_id) {
+			logger::info("* Settings :: Custom Marker {:#x} detected, applying custom rules...", a_id);
+			return customMarker;
+		}
+	}
+	return Settings::Marker{0x0, 0x0, 0x0, 0x0};
+}
+
+bool Settings::IsLocationAllowed(RE::BGSLocation* a_location) const
 {
 	if (a_location) {
-		for (std::uint32_t i = 0; i < uniqueLocations.size(); i++) {
-			if (uniqueLocations[i] == a_location) {
+		for (auto& customKeyword : customKeywords) {
+			if (a_location->HasKeywordString(customKeyword)) {
 				return true;
 			}
 		}
@@ -54,20 +98,7 @@ bool Settings::IsUniqueLocation(RE::FormID a_location)
 	return false;
 }
 
-bool Settings::IsSameLocation(RE::BGSLocation* a_location, std::uint32_t a_id)
-{
-	if (a_location) {
-		const auto sourceID = a_location->GetFormID();
-		const auto targetID = static_cast<RE::FormID>(a_id);
-
-		if (sourceID == targetID) {
-			return true;
-		}
-	}
-	return false;
-}
-
-bool Settings::GetQuestCompleted(std::uint32_t a_id)
+bool Settings::GetQuestCompleted(RE::FormID a_id) const
 {
 	const auto quest = RE::TESForm::LookupByID<RE::TESQuest>(a_id);
 
@@ -77,4 +108,26 @@ bool Settings::GetQuestCompleted(std::uint32_t a_id)
 		}
 	}
 	return false;
+}
+
+void Settings::SendData(RE::MapMenu* a_menu, std::string a_type, bool a_marker) const
+{
+	if (a_menu) {
+		if (a_type == "hold") {
+			RE::DebugNotification(Settings::notificationHold.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+		else if (a_type == "habitation") {
+			RE::DebugNotification(Settings::notificationHabitation.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+		else if (a_type == "faction") {
+			RE::DebugNotification(Settings::notificationFaction.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+		else {
+			RE::DebugNotification(Settings::notificationInsufficientData.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+
+		if (Settings::placeMarker && a_marker) {
+			a_menu->PlaceMarker();
+		}
+	}
 }
