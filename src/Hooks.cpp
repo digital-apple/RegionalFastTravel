@@ -11,11 +11,11 @@ namespace Hooks
 			const auto settings = Settings::GetSingleton();
 			const auto currentLoc = RE::PlayerCharacter::GetSingleton()->GetCurrentLocation();
 			const auto destinyLoc = marker->GetCurrentLocation();
-
+			
 			logger::info("* Hooks :: Latest marker ID: {:#x}", marker->GetFormID());
 
-			if (const auto customMarker = settings->IsCustomMarker(marker->GetFormID()); customMarker.markerID != 0x0) {
-				if (currentLoc->parentLoc->GetFormID() == customMarker.holdID || currentLoc->parentLoc->parentLoc->GetFormID() == customMarker.holdID || settings->enableTravelHold) {
+			if (const auto customMarker = settings->GetCustomMarker(marker->GetFormID()); customMarker.markerID != 0x0) {
+				if (settings->CanFastTravel(currentLoc, customMarker.markerID) || settings->enableTravelHold) {
 					if (customMarker.factionID != 0x0 || settings->enableTravelFaction) {
 						if (RE::PlayerCharacter::GetSingleton()->IsInFaction(RE::TESForm::LookupByID<RE::TESFaction>(customMarker.factionID))) {
 							return true;
@@ -42,7 +42,7 @@ namespace Hooks
 				return true;
 			}
 
-			if (currentLoc->parentLoc == destinyLoc->parentLoc || currentLoc->parentLoc == destinyLoc->parentLoc->parentLoc || settings->enableTravelHold) {
+			if (settings->CanFastTravel(currentLoc, marker->GetFormID()) || settings->enableTravelHold) {
 				if (settings->IsLocationAllowed(destinyLoc) || settings->enableTravelHabitation) {
 					return true;
 				}

@@ -9,6 +9,7 @@ Settings* Settings::GetSingleton()
 Settings::Settings()
 {
 	CSimpleIniA ini;
+
 	ini.SetUnicode();
 
 	ini.LoadFile(path);
@@ -29,32 +30,34 @@ Settings::Settings()
 	(void)ini.SaveFile(path);
 }
 
-void Settings::SetupCustomMarkers()
+void Settings::ParseJson()
 {
-	CSimpleIniA ini;
-	ini.SetUnicode();
-	ini.LoadFile(path);
+	std::ifstream is("Data/SKSE/Plugins/RegionalFastTravel.json");
 
-	if (const auto section = ini.GetSection("Custom Markers"); section && !section->empty()) {
-		for (const auto& entry : *section | std::views::values) {
-			std::vector<std::string> parts;
+	json j = json::parse(is);
 
-			for (auto sub : std::string((entry)) | std::views::split('|')) {
-				parts.push_back(std::string(sub.begin(), sub.end()));
-			}
+	const json& array = j["Locations"];
 
-			Settings::Marker customMarker{ stoul(parts[0], 0, 16), stoul(parts[1], 0, 16), stoul(parts[2], 0, 16), stoul(parts[3], 0, 16) };
+	for (const auto& item : array.array_range()) {
+		auto holdID = UpdateFormID(item["HoldID"].as<std::string>());
+		auto questID = UpdateFormID(item["QuestID"].as<std::string>());
+		auto markerID = UpdateFormID(item["MarkerID"].as<std::string>());
+		auto factionID = UpdateFormID(item["FactionID"].as<std::string>());
+		auto locationID = UpdateFormID(item["LocationID"].as<std::string>());
 
-			customMarkers.emplace_back(customMarker);
-		}
-		logger::info("* Settings :: Done setting up {} custom markers.", customMarkers.size());
+		Settings::Marker customMarker{ stoul(holdID, 0, 16), stoul(questID, 0, 16), stoul(markerID, 0, 16), stoul(factionID, 0, 16), stoul(locationID, 0, 16) };
+
+		customMarkers.emplace_back(customMarker);
 	}
+	logger::info("* Settings :: Done setting up {} custom markers.", customMarkers.size());
 }
 
-void Settings::SetupCustomKeywords()
+void Settings::SetupKeywords()
 {
 	CSimpleIniA ini;
+
 	ini.SetUnicode();
+
 	ini.LoadFile(path);
 
 	if (const auto section = ini.GetSection("Custom Keywords"); section && !section->empty()) {
@@ -75,15 +78,74 @@ void Settings::SetupCustomKeywords()
 	}
 }
 
-Settings::Marker Settings::IsCustomMarker(RE::FormID a_id) const
+void Settings::SendData(RE::MapMenu* a_menu, std::string a_type, bool a_marker) const
+{
+	if (a_menu) {
+		if (a_type == "hold") {
+			RE::DebugNotification(Settings::notificationHold.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+		else if (a_type == "habitation") {
+			RE::DebugNotification(Settings::notificationHabitation.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+		else if (a_type == "faction") {
+			RE::DebugNotification(Settings::notificationFaction.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+		else {
+			RE::DebugNotification(Settings::notificationInsufficientData.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+		}
+
+		if (Settings::placeMarker && a_marker) {
+			a_menu->PlaceMarker();
+		}
+	}
+}
+
+std::string Settings::UpdateFormID(std::string a_formID) const
+{
+	const auto dataHandler = RE::TESDataHandler::GetSingleton();
+
+	if (a_formID == "NULL") {
+		return "0x0";
+	}
+
+	std::vector<std::string> strings;
+	for (auto sub : std::string((a_formID)) | std::views::split('|')) {
+		strings.push_back(std::string(sub.begin(), sub.end()));
+	}
+
+	const auto modType = dataHandler->LookupModByName(strings[1]);
+
+	auto index = std::format("{:x}", modType->GetPartialIndex());
+
+	if (index.length() == 1) {
+		index = "0" + index;
+	}
+
+	strings[0].replace(2, index.length(), index);
+
+	logger::info("* Settings :: Parsed FormID: \"{}\"", strings[0]);
+
+	return strings[0];
+}
+
+Settings::Marker Settings::GetCustomMarker(RE::FormID a_id) const
 {
 	for (auto& customMarker : customMarkers) {
 		if (customMarker.markerID == a_id) {
-			logger::info("* Settings :: Custom Marker {:#x} detected, applying custom rules...", a_id);
 			return customMarker;
 		}
 	}
-	return Settings::Marker{0x0, 0x0, 0x0, 0x0};
+	return Settings::Marker{ 0x0, 0x0, 0x0, 0x0, 0x0 };
+}
+
+Settings::Marker Settings::GetCustomLocation(RE::FormID a_id) const
+{
+	for (auto& customMarker : customMarkers) {
+		if (customMarker.locationID == a_id) {
+			return customMarker;
+		}
+	}
+	return Settings::Marker{ 0x0, 0x0, 0x0, 0x0, 0x0 };
 }
 
 bool Settings::IsLocationAllowed(RE::BGSLocation* a_location) const
@@ -110,24 +172,40 @@ bool Settings::GetQuestCompleted(RE::FormID a_id) const
 	return false;
 }
 
-void Settings::SendData(RE::MapMenu* a_menu, std::string a_type, bool a_marker) const
+bool Settings::CanFastTravel(RE::BGSLocation* a_location, RE::FormID a_marker)
 {
-	if (a_menu) {
-		if (a_type == "hold") {
-			RE::DebugNotification(Settings::notificationHold.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
-		}
-		else if (a_type == "habitation") {
-			RE::DebugNotification(Settings::notificationHabitation.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
-		}
-		else if (a_type == "faction") {
-			RE::DebugNotification(Settings::notificationFaction.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
-		}
-		else {
-			RE::DebugNotification(Settings::notificationInsufficientData.c_str(), Settings::notificationSound.c_str(), Settings::disableNotificationQueue);
+	if (a_location) {
+		auto hold = RE::TESForm::LookupByID<RE::TESObjectREFR>(a_marker)->GetCurrentLocation();
+		RE::FormID holdID = 0x0;
+
+		if (hold) {
+			holdID = hold->GetFormID();
 		}
 
-		if (Settings::placeMarker && a_marker) {
-			a_menu->PlaceMarker();
+		while (hold && !hold->HasKeywordString("LocTypeHold") && hold->parentLoc) {
+			hold = hold->parentLoc;
+			holdID = hold->GetFormID();
+		}
+
+		if (auto locParentID = a_location->parentLoc->GetFormID(); locParentID) {
+			if (const auto customMarker = GetCustomMarker(a_marker); customMarker.markerID != 0x0) {
+				holdID = customMarker.holdID;
+			}
+
+			if (const auto customLoc = GetCustomLocation(a_location->GetFormID()); customLoc.locationID != 0x0) {
+				locParentID = customLoc.holdID;
+			}
+
+			auto locParentParentID = locParentID;
+
+			if (const auto locParentParent = a_location->parentLoc->parentLoc; locParentParent) {
+				locParentParentID = locParentParent->GetFormID();
+			}
+
+			if (locParentID == holdID || locParentParentID == holdID) {
+				return true;
+			}
 		}
 	}
+	return false;
 }

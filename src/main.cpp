@@ -5,8 +5,8 @@ void OnInit(SKSE::MessagingInterface::Message* a_msg)
 {
 	if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
 		Hooks::Install();
-		Settings::GetSingleton()->SetupCustomMarkers();
-		Settings::GetSingleton()->SetupCustomKeywords();
+		Settings::GetSingleton()->ParseJson();
+		Settings::GetSingleton()->SetupKeywords();
 	}
 }
 

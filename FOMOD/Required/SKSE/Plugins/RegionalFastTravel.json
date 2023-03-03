@@ -1,0 +1,253 @@
+{
+	"Locations" :
+	[
+		{
+			"Name": "Sky Haven Temple",
+			"HoldID": "0x00016769|Skyrim.esm",
+			"QuestID": "0x00036192|Skyrim.esm",
+			"MarkerID": "0x000EF0AE|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Druadach Redoubt",
+			"HoldID": "0x00016769|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x0001623C|Skyrim.esm",
+			"FactionID": "0x000E3609|Skyrim.esm",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Dushnikh Yal",
+			"HoldID": "0x00016769|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x0001623E|Skyrim.esm",
+			"FactionID": "0x00024029|Skyrim.esm",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Largashbur",
+			"HoldID": "0x0001676C|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x0001626F|Skyrim.esm",
+			"FactionID": "0x00024029|Skyrim.esm",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Mor Khazgur",
+			"HoldID": "0x00016769|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x00016287|Skyrim.esm",
+			"FactionID": "0x00024029|Skyrim.esm",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Narzulbur",
+			"HoldID": "0x0001676A|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x0001628D|Skyrim.esm",
+			"FactionID": "0x00024029|Skyrim.esm",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Gloombound Mine",
+			"HoldID": "0x0001676A|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x00016349|Skyrim.esm",
+			"FactionID": "0x00024029|Skyrim.esm",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Eastmarch Imperial Camp",
+			"HoldID": "0x0001676A|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x00095A08|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Falkreath Imperial Camp",
+			"HoldID": "0x0001676F|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x00016283|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Hjaalmarch Imperial Camp",
+			"HoldID": "0x0001676E|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x00016279|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Pale Imperial Camp",
+			"HoldID": "0x0001676D|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x0001627B|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Reach Imperial Camp",
+			"HoldID": "0x00016769|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x00016277|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Rift Imperial Camp",
+			"HoldID": "0x0001676C|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x00016281|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Whiterun Imperial Camp",
+			"HoldID": "0x00016772|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x00016284|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Winterhold Imperial Camp",
+			"HoldID": "0x0001676B|Skyrim.esm",
+			"QuestID": "0x000D517A|Skyrim.esm",
+			"MarkerID": "0x0001672D|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Falkreath Stormcloak Camp",
+			"HoldID": "0x0001676F|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x00016282|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Haafingar Stormcloak Camp",
+			"HoldID": "0x00016770|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x00094F96|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Hjaalmarch Stormcloak Camp",
+			"HoldID": "0x0001676E|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x0001627A|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Pale Stormcloak Camp",
+			"HoldID": "0x0001676D|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x0001672C|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Reach Stormcloak Camp",
+			"HoldID": "0x00016769|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x00016726|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Rift Stormcloak Camp",
+			"HoldID": "0x0001676C|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x00016280|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Whiterun Stormcloak Camp",
+			"HoldID": "0x00016772|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x00095885|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Winterhold Stormcloak Camp",
+			"HoldID": "0x0001676B|Skyrim.esm",
+			"QuestID": "0x000E2D29|Skyrim.esm",
+			"MarkerID": "0x0001672E|Skyrim.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Dayspring Canyon",
+			"HoldID": "0x0001676C|Skyrim.esm",
+			"QuestID": "0x00004E24|Dawnguard.esm",
+			"MarkerID": "0x0000FC6C|Dawnguard.esm",
+			"FactionID": "NULL",
+			"LocationID": "0x00004C1F|Dawnguard.esm"
+		},
+		{
+			"Name": "Fort Dawnguard",
+			"HoldID": "0x0001676C|Skyrim.esm",
+			"QuestID": "0x00004E24|Dawnguard.esm",
+			"MarkerID": "0x00013F21|Dawnguard.esm",
+			"FactionID": "NULL",
+			"LocationID": "0x00004C1F|Dawnguard.esm"
+		},
+		{
+			"Name": "Icewater Jetty",
+			"HoldID": "0x00016770|Skyrim.esm",
+			"QuestID": "0x0000594C|Dawnguard.esm",
+			"MarkerID": "0x00008E41|Dawnguard.esm",
+			"FactionID": "NULL",
+			"LocationID": "0x00012409|Dawnguard.esm"
+		},
+		{
+			"Name": "Castle Volkihar",
+			"HoldID": "0x00016770|Skyrim.esm",
+			"QuestID": "0x0000594C|Dawnguard.esm",
+			"MarkerID": "0x0000BA4D|Dawnguard.esm",
+			"FactionID": "NULL",
+			"LocationID": "0x00004C20|Dawnguard.esm"
+		},
+		{
+			"Name": "Castle Volkihar Balcony",
+			"HoldID": "0x00016770|Skyrim.esm",
+			"QuestID": "0x0000594C|Dawnguard.esm",
+			"MarkerID": "0x0000D165|Dawnguard.esm",
+			"FactionID": "NULL",
+			"LocationID": "0x0000D165|Dawnguard.esm"
+		},
+		{
+			"Name": "Forgotten Vale",
+			"HoldID": "0x00016770|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x000088E0|Dawnguard.esm",
+			"FactionID": "NULL",
+			"LocationID": "0x0000A87C|Dawnguard.esm"
+		},
+		{
+			"Name": "Solstheim",
+			"HoldID": "0x0001676A|Skyrim.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x00016FE7|Dragonborn.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		},
+		{
+			"Name": "Skyrim",
+			"HoldID": "0x00016E2A|Dragonborn.esm",
+			"QuestID": "NULL",
+			"MarkerID": "0x00016FE6|Dragonborn.esm",
+			"FactionID": "NULL",
+			"LocationID": "NULL"
+		}
+	]
+}

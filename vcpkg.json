@@ -1,12 +1,13 @@
 {
   "name": "regional-fast-travel",
-  "version-string": "1.1.0",
+  "version-string": "1.2.0",
   "description": "",
   "homepage": "",
   "license": "MIT",
   "dependencies": [
     "boost-stl-interfaces",
     "clib-util",
+    "jsoncons",
     "rsm-binary-io",
     "spdlog",
     "xbyak"

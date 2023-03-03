@@ -5,6 +5,7 @@
 
 #include <ClibUtil/simpleINI.hpp>
 #include <ClibUtil/string.hpp>
+#include <jsoncons/json.hpp>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <xbyak/xbyak.h>
 
@@ -13,6 +14,8 @@
 namespace logger = SKSE::log;
 namespace string = clib_util::string;
 namespace ini = clib_util::ini;
+
+using namespace jsoncons;
 
 using namespace std::literals;
 
